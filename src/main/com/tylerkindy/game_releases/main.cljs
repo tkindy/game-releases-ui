@@ -1,10 +1,11 @@
 (ns com.tylerkindy.game-releases.main
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [reagent.dom :as rdom]
+  (:require [reagent.core :as r]
+            [reagent.dom :as rdom]
             [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]))
 
-(def state (atom {}))
+(defonce state (r/atom {}))
 
 (def releases-url "https://tkindy-public.s3.amazonaws.com/2022-game-releases.json")
 (defn fetch-releases []
