@@ -1,6 +1,7 @@
 {:source-paths ["src/main" "src/test"]
  :dependencies [[reagent "1.1.0"]
-                [cljs-http "0.1.46"]]
+                [cljs-http "0.1.46"]
+                [org.clojure/core.match "1.0.0"]]
  :builds {:app {:target :browser
                 :output-dir "public/2022games/js"
                 :asset-path "/2022games/js"

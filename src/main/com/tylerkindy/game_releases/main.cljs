@@ -4,9 +4,24 @@
             [reagent.dom :as rdom]
             [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [clojure.core.match :refer [match]]))
 
-(defonce state (r/atom {}))
+(defonce state (r/atom {:sort-dir :asc}))
+
+(defn compare-dates [dir]
+  (fn [x y]
+    (match [x y]
+      [nil nil] false
+      [nil _]   false
+      [_ nil]   true
+      [x y]     ((if (= dir :asc)
+                   <
+                   >) x y))))
+
+(defn releases []
+  (let [{:keys [releases sort-dir]} @state]
+    (sort-by :release-date (compare-dates sort-dir) releases)))
 
 (def releases-url "https://tkindy-public.s3.amazonaws.com/2022-game-releases.json")
 (defn fetch-releases []
@@ -42,20 +57,27 @@
    [:td
     [:time {:dateTime release-date} release-date]]])
 
+(defn cycle-sort []
+  (let [dir (:sort-dir @state)
+        new-dir (if (= dir :asc)
+                  :desc
+                  :asc)]
+    (swap! state assoc :sort-dir new-dir)))
+
 (defn releases-table []
-  (let [releases (:releases @state)]
+  (let [releases (releases)]
     [:table.releases-table
      [:thead
       [:tr
        [:th "Game"]
        [:th "Platforms"]
-       [:th "Release date"]]]
+       [:th {:on-click cycle-sort} "Release date"]]]
      [:tbody
       (for [{:keys [name platforms] :as release} releases]
         ^{:key (str name platforms)} [release-row release])]]))
 
 (defn releases-table-wrapper []
-  (let [releases (:releases @state)]
+  (let [releases (releases)]
     (if releases
       [releases-table]
       [:i "Loading..."])))
