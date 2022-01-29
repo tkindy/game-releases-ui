@@ -29,6 +29,29 @@
     (let [response (<! (http/get releases-url))]
       (swap! state assoc :releases (get-in response [:body])))))
 
+(defn month-str [month]
+  (case month
+    1  "January"
+    2  "February"
+    3  "March"
+    4  "April"
+    5  "May"
+    6  "June"
+    7  "July"
+    8  "August"
+    9  "September"
+    10 "October"
+    11 "November"
+    12 "December"))
+
+(def date-sep #"-")
+(defn date-str [date]
+  (if date
+    (let [[_ month day] (->> (str/split date date-sep)
+                             (map js/parseInt))]
+      (str (month-str month) " " day))
+    ""))
+
 (defn platform-str [platform]
   (case platform
     "ps5" "PlayStation 5"
@@ -55,7 +78,7 @@
     [:a {:href link :target :_blank} name]]
    [:td (build-platforms platforms)]
    [:td
-    [:time {:dateTime release-date} release-date]]])
+    [:time {:dateTime release-date} (date-str release-date)]]])
 
 (defn cycle-sort []
   (let [dir (:sort-dir @state)
