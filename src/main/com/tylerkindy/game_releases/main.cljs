@@ -3,7 +3,8 @@
   (:require [reagent.core :as r]
             [reagent.dom :as rdom]
             [cljs-http.client :as http]
-            [cljs.core.async :refer [<!]]))
+            [cljs.core.async :refer [<!]]
+            [clojure.string :as str]))
 
 (defonce state (r/atom {}))
 
@@ -13,12 +14,33 @@
     (let [response (<! (http/get releases-url))]
       (swap! state assoc :releases (get-in response [:body])))))
 
-(defn release-row [{:keys [name link release-date]}]
+(defn platform-str [platform]
+  (case platform
+    "ps5" "PlayStation 5"
+    "ps4" "PlayStation 4"
+    "psvr" "PlayStation VR"
+    "pc" "PC"
+    "mac" "Mac"
+    "linux" "Linux"
+    "xbox-series" "Xbox Series X/S"
+    "xbox-one" "Xbox One"
+    "switch" "Switch"
+    "stadia" "Stadia"
+    "ios" "iOS"
+    "android" "Android"))
+
+(defn build-platforms [platforms]
+  (->> platforms
+       (map platform-str)
+       (str/join ", ")))
+
+(defn release-row [{:keys [name link release-date platforms]}]
   [:tr
    [:td
     [:a {:href link :target :_blank} name]]
+   [:td (build-platforms platforms)]
    [:td
-    [:time {:datetime release-date} release-date]]])
+    [:time {:dateTime release-date} release-date]]])
 
 (defn releases-table []
   (let [releases (:releases @state)]
@@ -26,11 +48,12 @@
      [:thead
       [:tr
        [:th "Game"]
+       [:th "Platforms"]
        [:th "Release date"]]]
      [:tbody
-      (for [release releases]
+      (for [{:keys [name platforms] :as release} releases]
         ; TODO: name is not unique key, need to include platforms
-        ^{:key name} [release-row release])]]))
+        ^{:key (str name platforms)} [release-row release])]]))
 
 (defn releases-table-wrapper []
   (let [releases (:releases @state)]
