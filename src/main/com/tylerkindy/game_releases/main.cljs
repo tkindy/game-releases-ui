@@ -52,7 +52,6 @@
        [:th "Release date"]]]
      [:tbody
       (for [{:keys [name platforms] :as release} releases]
-        ; TODO: name is not unique key, need to include platforms
         ^{:key (str name platforms)} [release-row release])]]))
 
 (defn releases-table-wrapper []
