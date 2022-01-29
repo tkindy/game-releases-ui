@@ -8,13 +8,12 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
         Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background: linear-gradient(#55a7d6, #55d6c5);
+      margin: 0;
     }
 
     table {
-      border: 1px solid;
-      border-radius: 5px;
       margin: 0 auto;
+      border-collapse: collapse;
     }
 
     .releases-table-wrapper {
@@ -27,16 +26,37 @@
 
     header {
       text-align: center;
-      min-width: 600px;
+      background: #1d77d6;
+      width: 100%;
+      padding: 5px 0;
+      margin-bottom: 20px;
     }
 
     h1 {
-      color: #5566d6;
+      color: white;
+      margin: 0;
+      padding: 10px 0;
+    }
+
+    table,
+    tr,
+    td,
+    th {
+      border: 1px solid gray;
+    }
+
+    th {
+      padding: 10px;
     }
 
     header p,
     header a {
-      color: #5566d6;
+      color: white;
+    }
+
+    .release-date-header {
+      cursor: pointer;
+      user-select: none;
     }
   </style>
 </head>

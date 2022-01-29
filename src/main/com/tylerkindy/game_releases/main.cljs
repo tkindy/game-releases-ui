@@ -71,7 +71,8 @@
       [:tr
        [:th "Game"]
        [:th "Platforms"]
-       [:th {:on-click cycle-sort} "Release date"]]]
+       [:th.release-date-header
+        {:on-click cycle-sort} "Release date"]]]
      [:tbody
       (for [{:keys [name platforms] :as release} releases]
         ^{:key (str name platforms)} [release-row release])]]))
