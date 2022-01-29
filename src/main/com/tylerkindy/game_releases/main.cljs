@@ -32,6 +32,12 @@
         ; TODO: name is not unique key, need to include platforms
         ^{:key name} [release-row release])]]))
 
+(defn releases-table-wrapper []
+  (let [releases (:releases @state)]
+    (if releases
+      [releases-table]
+      [:i "Loading..."])))
+
 (defn header []
   [:header
    [:h1 "2022 Game Releases"]
@@ -43,7 +49,7 @@
 (defn app []
   [:div
    [header]
-   [releases-table]])
+   [releases-table-wrapper]])
 
 (defn mount []
   (rdom/render [app]
