@@ -21,10 +21,13 @@
        [:th "Game"]
        [:th "Release date"]]]
      [:tbody
-      (for [{:keys [name release-date]} releases]
+      (for [{:keys [name link release-date]} releases]
         ; TODO: name is not unique key, need to include platforms
         ^{:key name} [:tr
-                      [:th name]
+                      [:th
+                       [:a {:href link
+                            :target :_blank}
+                        name]]
                       [:th release-date]])]]))
 
 (defn app []
