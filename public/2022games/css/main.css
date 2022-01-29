@@ -1,5 +1,33 @@
-table,
-th,
-td {
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  background: linear-gradient(#55a7d6, #55d6c5);
+}
+
+table {
   border: 1px solid;
+  border-radius: 5px;
+  margin: 0 auto;
+}
+
+.releases-table-wrapper {
+  text-align: center;
+}
+
+td {
+  padding: 10px;
+}
+
+header {
+  text-align: center;
+  min-width: 600px;
+}
+
+h1 {
+  color: #5566d6;
+}
+
+header p,
+header a {
+  color: #5566d6;
 }

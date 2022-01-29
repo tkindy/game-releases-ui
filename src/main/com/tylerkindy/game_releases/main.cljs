@@ -78,9 +78,10 @@
 
 (defn releases-table-wrapper []
   (let [releases (releases)]
-    (if releases
-      [releases-table]
-      [:i "Loading..."])))
+    [:div.releases-table-wrapper
+     (if (empty? releases)
+       [:i.loading-msg "Loading..."]
+       [releases-table])]))
 
 (defn header []
   [:header
