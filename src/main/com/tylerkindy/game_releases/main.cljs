@@ -28,7 +28,8 @@
                        [:a {:href link
                             :target :_blank}
                         name]]
-                      [:td release-date]])]]))
+                      [:td
+                       [:time {:datetime release-date} release-date]]])]]))
 
 (defn header []
   [:header
