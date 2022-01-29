@@ -13,6 +13,13 @@
     (let [response (<! (http/get releases-url))]
       (swap! state assoc :releases (get-in response [:body])))))
 
+(defn release-row [{:keys [name link release-date]}]
+  [:tr
+   [:td
+    [:a {:href link :target :_blank} name]]
+   [:td
+    [:time {:datetime release-date} release-date]]])
+
 (defn releases-table []
   (let [releases (:releases @state)]
     [:table.releases-table
@@ -21,15 +28,9 @@
        [:th "Game"]
        [:th "Release date"]]]
      [:tbody
-      (for [{:keys [name link release-date]} releases]
+      (for [release releases]
         ; TODO: name is not unique key, need to include platforms
-        ^{:key name} [:tr
-                      [:td
-                       [:a {:href link
-                            :target :_blank}
-                        name]]
-                      [:td
-                       [:time {:datetime release-date} release-date]]])]]))
+        ^{:key name} [release-row release])]]))
 
 (defn header []
   [:header
