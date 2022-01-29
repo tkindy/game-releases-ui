@@ -1,3 +1,5 @@
-.someclass {
-  color: orange;
+table,
+th,
+td {
+  border: 1px solid;
 }

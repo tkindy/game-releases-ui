@@ -15,7 +15,7 @@
 
 (defn releases-table []
   (let [releases (:releases @state)]
-    [:table
+    [:table.releases-table
      [:thead
       [:tr
        [:th "Game"]
