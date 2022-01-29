@@ -24,11 +24,11 @@
       (for [{:keys [name link release-date]} releases]
         ; TODO: name is not unique key, need to include platforms
         ^{:key name} [:tr
-                      [:th
+                      [:td
                        [:a {:href link
                             :target :_blank}
                         name]]
-                      [:th release-date]])]]))
+                      [:td release-date]])]]))
 
 (defn header []
   [:header
