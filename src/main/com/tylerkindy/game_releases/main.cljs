@@ -30,9 +30,16 @@
                         name]]
                       [:th release-date]])]]))
 
+(defn header []
+  [:header
+   [:h1 "2022 Game Releases"]
+   [:p "This site runs off data scraped from "
+    [:a {:href "https://www.gameinformer.com/2022"} "Game Informer"]
+    "."]])
+
 (defn app []
   [:div
-   [:h1 "Hello, world!"]
+   [header]
    [releases-table]])
 
 (defn mount []
