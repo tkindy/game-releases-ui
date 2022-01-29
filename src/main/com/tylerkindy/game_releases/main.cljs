@@ -14,14 +14,33 @@
     (let [response (<! (http/get releases-url))]
       (swap! state assoc :releases (get-in response [:body])))))
 
+(defn platform-str [platform]
+  (case platform
+    "ps5" "PlayStation 5"
+    "ps4" "PlayStation 4"
+    "psvr" "PlayStation VR"
+    "pc" "PC"
+    "mac" "Mac"
+    "linux" "Linux"
+    "xbox-series" "Xbox Series X/S"
+    "xbox-one" "Xbox One"
+    "switch" "Switch"
+    "stadia" "Stadia"
+    "ios" "iOS"
+    "android" "Android"))
+
+(defn build-platforms [platforms]
+  (->> platforms
+       (map platform-str)
+       (str/join ", ")))
+
 (defn release-row [{:keys [name link release-date platforms]}]
-  (let [platforms-str (str/join ", " platforms)]
-    [:tr
-     [:td
-      [:a {:href link :target :_blank} name]]
-     [:td platforms-str]
-     [:td
-      [:time {:dateTime release-date} release-date]]]))
+  [:tr
+   [:td
+    [:a {:href link :target :_blank} name]]
+   [:td (build-platforms platforms)]
+   [:td
+    [:time {:dateTime release-date} release-date]]])
 
 (defn releases-table []
   (let [releases (:releases @state)]
