@@ -111,9 +111,10 @@
   [:header
    [:h1 "2022 Game Releases"]
    [:p "This site runs off data scraped from "
-    [:a {:href "https://www.gameinformer.com/2022"} "Game Informer"]
+    [:a {:href "https://www.gameinformer.com/2022"}
+     "Game" "\u00A0" "Informer"]
     "."]
-   [:p [:i "Made by " [:a {:href "https://tylerkindy.com"} "Tyler Kindy"] "."]]])
+   [:p [:i "Made by " [:a {:href "https://tylerkindy.com"} "Tyler" "\u00A0" "Kindy"] "."]]])
 
 (defn app []
   [:div
