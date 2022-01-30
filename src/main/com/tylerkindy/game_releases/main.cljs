@@ -127,7 +127,7 @@
                        (use-nbsp "Tyler Kindy")]]]])
 
 (defn app []
-  [:div
+  [:<>
    [header]
    [releases-table-wrapper]])
 
