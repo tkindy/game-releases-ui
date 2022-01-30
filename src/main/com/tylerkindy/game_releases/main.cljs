@@ -181,11 +181,10 @@
          ^{:key (str name platforms)} [release-row release])]]]))
 
 (defn releases-table-wrapper []
-  (let [releases (releases)]
-    [:div.releases-table-wrapper
-     (if (nil? (:releases @state))
-       [:i.loading-msg "Loading..."]
-       [releases-table])]))
+  [:div.releases-table-wrapper
+   (if (nil? (:releases @state))
+     [:i.loading-msg "Loading..."]
+     [releases-table])])
 
 (defn header []
   [:header
