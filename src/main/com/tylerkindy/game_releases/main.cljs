@@ -7,7 +7,8 @@
             [clojure.string :as str]
             [clojure.core.match :refer [match]]))
 
-(defonce state (r/atom {:sort-dir :asc}))
+(defonce state (r/atom {:sort-dir :asc
+                        :filter-open? false}))
 
 (defn compare-dates [dir]
   (fn [x y]
@@ -98,18 +99,39 @@
                   :asc)]
     (swap! state assoc :sort-dir new-dir)))
 
+(defn filter-controls []
+  [:div.filter-region
+   [:fieldset.platform-select
+    [:legend "Platforms"]
+    (for [[key name] (sort-by val platform-map)]
+      (let [id (str "platform-" key)]
+        ^{:key key} [:div.platform-option
+                     [:input {:id id :type :checkbox}]
+                     [:label {:for id} name]]))]])
+
+(defn filter-section []
+  (let [open? (:filter-open? @state)
+        content (if open? "Close" "Filter")]
+    [:<>
+     [:button.filter-btn
+      {:on-click #(swap! state update :filter-open? not)}
+      content]
+     (when open? [filter-controls])]))
+
 (defn releases-table []
   (let [releases (releases)]
-    [:table.releases-table
-     [:thead
-      [:tr
-       [:th "Game"]
-       [:th "Platforms"]
-       [:th.release-date-header
-        {:on-click cycle-sort} "Release date"]]]
-     [:tbody
-      (for [{:keys [name platforms] :as release} releases]
-        ^{:key (str name platforms)} [release-row release])]]))
+    [:<>
+     [filter-section]
+     [:table.releases-table
+      [:thead
+       [:tr
+        [:th "Game"]
+        [:th "Platforms"]
+        [:th.release-date-header
+         {:on-click cycle-sort} "Release date"]]]
+      [:tbody
+       (for [{:keys [name platforms] :as release} releases]
+         ^{:key (str name platforms)} [release-row release])]]]))
 
 (defn releases-table-wrapper []
   (let [releases (releases)]
