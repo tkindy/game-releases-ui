@@ -80,7 +80,8 @@
 (defn build-platforms [platforms]
   (->> platforms
        (map platform-map)
-       (str/join "\n")))
+       sort
+       (str/join ", ")))
 
 (defn release-row [{:keys [name link release-date platforms]}]
   [:tr
