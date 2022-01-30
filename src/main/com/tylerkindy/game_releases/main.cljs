@@ -183,7 +183,7 @@
 (defn releases-table-wrapper []
   (let [releases (releases)]
     [:div.releases-table-wrapper
-     (if (nil? releases)
+     (if (nil? (:releases @state))
        [:i.loading-msg "Loading..."]
        [releases-table])]))
 
