@@ -5,7 +5,8 @@
             [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
             [clojure.string :as str]
-            [clojure.core.match :refer [match]]))
+            [clojure.core.match :refer [match]]
+            [clojure.set :as set]))
 
 (def nbsp "\u00A0")
 (defn use-nbsp [s]
@@ -34,8 +35,8 @@
        (into {})))
 (def init-state
   (-> {:sort-dir :asc
-       :filter {:open? false}}
-      (assoc-in [:filter :platforms] init-filters)))
+       :filters {:open? false}}
+      (assoc-in [:filters :platforms] init-filters)))
 
 (defonce state (r/atom init-state))
 
@@ -50,14 +51,25 @@
                    >) x y))))
 
 (defn releases []
-  (let [{:keys [releases sort-dir]} @state]
-    (sort-by :release-date (compare-dates sort-dir) releases)))
+  (let [{:keys [releases sort-dir filters]} @state
+        {:keys [platforms]} filters
+        selected-platforms (->> platforms
+                                keys
+                                (filter platforms)
+                                (into #{}))]
+    (->> releases
+         (filter (fn [release]
+                   (seq (set/intersection (:platforms release)
+                                          selected-platforms))))
+         (sort-by :release-date (compare-dates sort-dir)))))
 
 (def releases-url "https://tkindy-public.s3.amazonaws.com/2022-game-releases.json")
 (defn fetch-releases []
   (letfn [(clean [releases]
             (map (fn [release]
-                   (update release :platforms #(map keyword %)))
+                   (update release :platforms #(->> %
+                                                    (map keyword)
+                                                    (into #{}))))
                  releases))]
     (go
       (let [response (<! (http/get releases-url))
@@ -123,16 +135,16 @@
                               :checked checked
                               :on-change #(swap! state
                                                  update-in
-                                                 [:filter :platforms key]
+                                                 [:filters :platforms key]
                                                  not)}]
                      [:label {:for id} name]]))]])
 
 (defn filter-section []
-  (let [{:keys [open? platforms]} (:filter @state)
+  (let [{:keys [open? platforms]} (:filters @state)
         content (if open? "Close" "Filter")]
     [:<>
      [:button.filter-btn
-      {:on-click #(swap! state update-in [:filter :open?] not)}
+      {:on-click #(swap! state update-in [:filters :open?] not)}
       content]
      (when open? [filter-controls platforms])]))
 
@@ -154,7 +166,7 @@
 (defn releases-table-wrapper []
   (let [releases (releases)]
     [:div.releases-table-wrapper
-     (if (empty? releases)
+     (if (nil? releases)
        [:i.loading-msg "Loading..."]
        [releases-table])]))
 
