@@ -29,6 +29,9 @@
     (let [response (<! (http/get releases-url))]
       (swap! state assoc :releases (get-in response [:body])))))
 
+(defn nbsp [s]
+  (str/replace s " " "\u00A0"))
+
 (defn month-str [month]
   (case month
     1  "January"
@@ -111,10 +114,9 @@
   [:header
    [:h1 "2022 Game Releases"]
    [:p "This site runs off data scraped from "
-    [:a {:href "https://www.gameinformer.com/2022"}
-     "Game" "\u00A0" "Informer"]
+    [:a {:href "https://www.gameinformer.com/2022"} (nbsp "Game Informer")]
     "."]
-   [:p [:i "Made by " [:a {:href "https://tylerkindy.com"} "Tyler" "\u00A0" "Kindy"] "."]]])
+   [:p [:i "Made by " [:a {:href "https://tylerkindy.com"} (nbsp "Tyler Kindy")] "."]]])
 
 (defn app []
   [:div
