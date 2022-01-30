@@ -7,8 +7,37 @@
             [clojure.string :as str]
             [clojure.core.match :refer [match]]))
 
-(defonce state (r/atom {:sort-dir :asc
-                        :filter-open? false}))
+(def nbsp "\u00A0")
+(defn use-nbsp [s]
+  (str/replace s " " nbsp))
+
+(def platform-map
+  (->> {:ps5 "PS5"
+        :ps4 "PS4"
+        :psvr "PSVR"
+        :pc "PC"
+        :mac "Mac"
+        :linux "Linux"
+        :xbox-series "Xbox Series X/S"
+        :xbox-one "Xbox One"
+        :switch "Switch"
+        :stadia "Stadia"
+        :ios "iOS"
+        :android "Android"}
+       (map (fn [[k v]] [k (use-nbsp v)]))
+       (into {})))
+
+(def init-filters
+  (->> platform-map
+       (map key)
+       (map (fn [platform] [platform true]))
+       (into {})))
+(def init-state
+  (-> {:sort-dir :asc
+       :filter {:open? false}}
+      (assoc-in [:filter :platforms] init-filters)))
+
+(defonce state (r/atom init-state))
 
 (defn compare-dates [dir]
   (fn [x y]
@@ -35,10 +64,6 @@
             releases (clean (:body response))]
         (swap! state assoc :releases releases)))))
 
-(def nbsp "\u00A0")
-(defn use-nbsp [s]
-  (str/replace s " " nbsp))
-
 (defn month-str [month]
   (case month
     1  "Jan"
@@ -62,21 +87,7 @@
       (str (month-str month) nbsp day))
     ""))
 
-(def platform-map
-  (->> {:ps5 "PS5"
-        :ps4 "PS4"
-        :psvr "PSVR"
-        :pc "PC"
-        :mac "Mac"
-        :linux "Linux"
-        :xbox-series "Xbox Series X/S"
-        :xbox-one "Xbox One"
-        :switch "Switch"
-        :stadia "Stadia"
-        :ios "iOS"
-        :android "Android"}
-       (map (fn [[k v]] [k (use-nbsp v)]))
-       (into {})))
+
 
 (defn build-platforms [platforms]
   (->> platforms
@@ -99,24 +110,31 @@
                   :asc)]
     (swap! state assoc :sort-dir new-dir)))
 
-(defn filter-controls []
+(defn filter-controls [platforms]
   [:div.filter-region
    [:fieldset.platform-select
     [:legend "Platforms"]
-    (for [[key name] (sort-by val platform-map)]
-      (let [id (str "platform-" key)]
+    (for [[key checked] (sort-by key platforms)]
+      (let [id (str "platform-" key)
+            name (platform-map key)]
         ^{:key key} [:div.platform-option
-                     [:input {:id id :type :checkbox}]
+                     [:input {:id id
+                              :type :checkbox
+                              :checked checked
+                              :on-change #(swap! state
+                                                 update-in
+                                                 [:filter :platforms key]
+                                                 not)}]
                      [:label {:for id} name]]))]])
 
 (defn filter-section []
-  (let [open? (:filter-open? @state)
+  (let [{:keys [open? platforms]} (:filter @state)
         content (if open? "Close" "Filter")]
     [:<>
      [:button.filter-btn
-      {:on-click #(swap! state update :filter-open? not)}
+      {:on-click #(swap! state update-in [:filter :open?] not)}
       content]
-     (when open? [filter-controls])]))
+     (when open? [filter-controls platforms])]))
 
 (defn releases-table []
   (let [releases (releases)]
