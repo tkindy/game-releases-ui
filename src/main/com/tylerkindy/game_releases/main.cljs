@@ -139,7 +139,7 @@
   [:div.filter-region
    [:fieldset.platform-select
     [:legend "Platforms"]
-    [:div
+    [:div.platform-multiselects
      [:button {:on-click select-all} "Select all"]
      [:button {:on-click select-none} "Select none"]]
     [:div.platform-options
