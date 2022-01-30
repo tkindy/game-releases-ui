@@ -25,55 +25,62 @@
 
 (def releases-url "https://tkindy-public.s3.amazonaws.com/2022-game-releases.json")
 (defn fetch-releases []
-  (go
-    (let [response (<! (http/get releases-url))]
-      (swap! state assoc :releases (get-in response [:body])))))
+  (letfn [(clean [releases]
+            (map (fn [release]
+                   (update release :platforms #(map keyword %)))
+                 releases))]
+    (go
+      (let [response (<! (http/get releases-url))
+            releases (clean (:body response))]
+        (swap! state assoc :releases releases)))))
 
-(defn nbsp [s]
-  (str/replace s " " "\u00A0"))
+(def nbsp "\u00A0")
+(defn use-nbsp [s]
+  (str/replace s " " nbsp))
 
 (defn month-str [month]
   (case month
-    1  "January"
-    2  "February"
-    3  "March"
-    4  "April"
+    1  "Jan"
+    2  "Feb"
+    3  "Mar"
+    4  "Apr"
     5  "May"
-    6  "June"
-    7  "July"
-    8  "August"
-    9  "September"
-    10 "October"
-    11 "November"
-    12 "December"))
+    6  "Jun"
+    7  "Jul"
+    8  "Aug"
+    9  "Sep"
+    10 "Oct"
+    11 "Nov"
+    12 "Dec"))
 
 (def date-sep #"-")
 (defn date-str [date]
   (if date
     (let [[_ month day] (->> (str/split date date-sep)
                              (map js/parseInt))]
-      (str (month-str month) " " day))
+      (str (month-str month) nbsp day))
     ""))
 
-(defn platform-str [platform]
-  (case platform
-    "ps5" "PlayStation 5"
-    "ps4" "PlayStation 4"
-    "psvr" "PlayStation VR"
-    "pc" "PC"
-    "mac" "Mac"
-    "linux" "Linux"
-    "xbox-series" "Xbox Series X/S"
-    "xbox-one" "Xbox One"
-    "switch" "Switch"
-    "stadia" "Stadia"
-    "ios" "iOS"
-    "android" "Android"))
+(def platform-map
+  (->> {:ps5 "PS5"
+        :ps4 "PS4"
+        :psvr "PSVR"
+        :pc "PC"
+        :mac "Mac"
+        :linux "Linux"
+        :xbox-series "Xbox Series X/S"
+        :xbox-one "Xbox One"
+        :switch "Switch"
+        :stadia "Stadia"
+        :ios "iOS"
+        :android "Android"}
+       (map (fn [[k v]] [k (use-nbsp v)]))
+       (into {})))
 
 (defn build-platforms [platforms]
   (->> platforms
-       (map platform-str)
-       (str/join ", ")))
+       (map platform-map)
+       (str/join "\n")))
 
 (defn release-row [{:keys [name link release-date platforms]}]
   [:tr
@@ -113,10 +120,10 @@
 (defn header []
   [:header
    [:h1 "2022 Game Releases"]
-   [:p "This site runs off data scraped from "
-    [:a {:href "https://www.gameinformer.com/2022"} (nbsp "Game Informer")]
-    "."]
-   [:p [:i "Made by " [:a {:href "https://tylerkindy.com"} (nbsp "Tyler Kindy")] "."]]])
+   [:p "This site uses data scraped from "
+    [:a {:href "https://www.gameinformer.com/2022"} (use-nbsp "Game Informer")]]
+   [:p [:i "Made by " [:a {:href "https://tylerkindy.com"}
+                       (use-nbsp "Tyler Kindy")]]]])
 
 (defn app []
   [:div
