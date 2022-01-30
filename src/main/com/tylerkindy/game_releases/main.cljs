@@ -122,22 +122,39 @@
                   :asc)]
     (swap! state assoc :sort-dir new-dir)))
 
+(defn select-all []
+  (swap! state assoc-in [:filters :platforms] init-filters))
+
+(defn select-none []
+  (swap! state
+         update-in
+         [:filters :platforms]
+         (fn [platforms]
+           (->> platforms
+                (map key)
+                (map (fn [k] [k false]))
+                (into {})))))
+
 (defn filter-controls [platforms]
   [:div.filter-region
    [:fieldset.platform-select
     [:legend "Platforms"]
-    (for [[key checked] (sort-by key platforms)]
-      (let [id (str "platform-" key)
-            name (platform-map key)]
-        ^{:key key} [:div.platform-option
-                     [:input {:id id
-                              :type :checkbox
-                              :checked checked
-                              :on-change #(swap! state
-                                                 update-in
-                                                 [:filters :platforms key]
-                                                 not)}]
-                     [:label {:for id} name]]))]])
+    [:div
+     [:button {:on-click select-all} "Select all"]
+     [:button {:on-click select-none} "Select none"]]
+    [:div.platform-options
+     (for [[key checked] (sort-by key platforms)]
+       (let [id (str "platform-" key)
+             name (platform-map key)]
+         ^{:key key} [:div.platform-option
+                      [:input {:id id
+                               :type :checkbox
+                               :checked checked
+                               :on-change #(swap! state
+                                                  update-in
+                                                  [:filters :platforms key]
+                                                  not)}]
+                      [:label {:for id} name]]))]]])
 
 (defn filter-section []
   (let [{:keys [open? platforms]} (:filters @state)
